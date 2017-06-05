@@ -7,6 +7,7 @@
 #include <tbb/tick_count.h>
 
 using namespace std;
+using namespace tbb;
 
 /* Обчислення підінтегральної функції. */
 class integrand
@@ -30,14 +31,14 @@ bool check_Runge(double I2, double I, double epsilon)
  * використовуючи значення start як початкове.
  */
 template<typename Integrand>
-class integrate_left_rectangle_func
+class integrate_right_rectangle_func
 {
 public:
-    integrate_left_rectangle_func(Integrand f_, double epsilon_):
+    integrate_right_rectangle_func(Integrand f_, double epsilon_):
             f(f_),
             epsilon(epsilon_)
     {}
-    double operator()(const tbb::blocked_range<double> &r, double start) const
+    double operator()(const blocked_range<double> &r, double start) const
     {
         int num_iterations = 1; /* Початкова кількість ітерацій */
         double last_res = 0.;   /* Результат інтeгрування на попередньому кроці */
@@ -69,7 +70,7 @@ public:
 /*
  * Об'єкт-функція, що виконує додавання двох елементів
  */
-class integrate_left_rectangle_reduction
+class integrate_right_rectangle_reduction
 {
 public:
     double operator()(double a, double b) const
@@ -79,27 +80,26 @@ public:
 };
 
 template<typename Integrand>
-double parallel_integrate_left_rectangle(
-        Integrand f, double start, double end, double epsilon)
+double parallel_integrate_left_rectangle(Integrand f, double start, double end, double epsilon)
 {
-    return tbb::parallel_reduce(
-            tbb::blocked_range<double>(start, end, 0),
+    return parallel_reduce(
+            blocked_range<double>(start, end, 0),
             0.,
-            integrate_left_rectangle_func<Integrand>(f, epsilon),
-            integrate_left_rectangle_reduction());
+            integrate_right_rectangle_func<Integrand>(f, epsilon),
+            integrate_right_rectangle_reduction());
 }
 
 int main()
 {
-    const int P_max = tbb::task_scheduler_init::default_num_threads();
+    const int P_max = task_scheduler_init::default_num_threads();
     for(int P = 1; P <= P_max; P++)
     {
-        tbb::task_scheduler_init init(P);
-        tbb::tick_count t0 = tbb::tick_count::now();
-        std::cout << parallel_integrate_left_rectangle(integrand(), 0, 70, 1e-5)
-                  << std::endl;
-        tbb::tick_count t1 = tbb::tick_count::now();
+        task_scheduler_init init(P);
+        tick_count t0 = tick_count::now();
+        cout << parallel_integrate_left_rectangle(integrand(), 0, 70, 1e-5)
+                  << endl;
+        tick_count t1 = tick_count::now();
         double t = (t1 - t0).seconds();
-        std::cout << "time = " << t << " with " << P << " threads" << std::endl;
+        cout << "time = " << t << " with " << P << " threads" << endl;
     }
 }

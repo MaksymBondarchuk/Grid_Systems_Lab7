@@ -1,8 +1,8 @@
-EXECS=main
+EXECS=tbb_integrate_right_rectangle
 
 all: main
 
-main: main.cpp
+main: tbb_integrate_right_rectangle.cpp
 	g++ -o ${EXECS} ${EXECS}.cpp -lm -ltbb
 
 run:
