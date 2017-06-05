@@ -1,10 +1,9 @@
 EXECS=main
-MPICC?=g++
 
-all: ${EXECS}
+all: main
 
 main: main.cpp
-	${MPICC} -o ${EXECS} ${EXECS}.cpp -lm -ltbb
+	g++ -o ${EXECS} ${EXECS}.cpp -lm -ltbb
 
 run:
 	./${EXECS}
