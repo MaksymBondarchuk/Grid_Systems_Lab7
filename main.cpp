@@ -8,26 +8,6 @@
 
 using namespace std;
 
-// Integrand
-double f (double x)
-{
-    return x*x*x;
-//    return 2*exp(2*x) / (sqrt(1+exp(2*x)));
-}
-
-// Refined calculation
-double refined_calculation (long long n, double a, double b)
-{
-    double h = (b - a) / (double)n;
-
-    double sum = (f(a) + f(b)) / 2;
-
-    for (long long i = 1; i < n; i++)
-        sum += f(a + i * h);
-
-    return  h * sum;
-}
-
 /* Обчислення підінтегральної функції. */
 class integrand
 {
@@ -62,23 +42,25 @@ public:
         int num_iterations = 1; /* Початкова кількість ітерацій */
         double last_res = 0.;   /* Результат інтeгрування на попередньому кроці */
         double res = -1.;       /* Поточний результат інтегрування */
-        double h = 0.;          /* Ширина прямокутників */
-//        cout << "start=" << start << endl;
         while(!check_Runge(res, last_res, epsilon))
         {
             num_iterations *= 2;
             last_res = res;
 
-//            cout << "res=" << res << " a=" << r.begin() << " b=" << r.end() << endl;
-            res = refined_calculation(num_iterations, r.begin(), r.end());
+            double a = r.begin();
+            double b = r.end();
+            long long n = num_iterations;
 
-//            h = (r.end() - r.begin()) / num_iterations;
-//            for(int i = 0; i < num_iterations; i++)
-//            {
-//                res += f(r.begin() + i * h);
-//            }
+            double h = (b - a) / (double)n;
+
+            double sum = (f(a) + f(b)) / 2;
+
+            for (long long i = 1; i < n; i++)
+                sum += f(a + i * h);
+
+            res =  h * sum;
+
         }
-//        res *= h;
         return start + res;
     }
     Integrand f;
@@ -115,7 +97,7 @@ int main()
     {
         tbb::task_scheduler_init init(P);
         tbb::tick_count t0 = tbb::tick_count::now();
-        std::cout << parallel_integrate_left_rectangle(integrand(), 0, 6, 1e-5)
+        std::cout << parallel_integrate_left_rectangle(integrand(), 0, 70, 1e-5)
                   << std::endl;
         tbb::tick_count t1 = tbb::tick_count::now();
         double t = (t1 - t0).seconds();
