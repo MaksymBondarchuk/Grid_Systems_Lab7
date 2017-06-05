@@ -4,7 +4,7 @@ MPICC?=g++
 all: ${EXECS}
 
 main: main.cpp
-	${MPICC} -o ${EXECS} ${EXECS}.cpp -lm
+	${MPICC} -o ${EXECS} ${EXECS}.cpp -lm -ltbb
 
 run:
 	./${EXECS}
