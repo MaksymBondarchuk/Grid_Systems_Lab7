@@ -53,13 +53,12 @@ public:
 
             double h = (b - a) / (double)n;
 
-            double sum = (f(a) + f(b)) / 2;
+            double sum = 0;
 
-            for (long long i = 1; i < n; i++)
+            for (long long i = 1; i <= n; i++)
                 sum += f(a + i * h);
 
             res =  h * sum;
-
         }
         return start + res;
     }
